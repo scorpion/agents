@@ -1,8 +1,15 @@
 receivers:
+  jaeger:
+    protocols:
+      grpc:
+      thrift_http:
+
   otlp:
     protocols:
       grpc:
       http:
+
+  zipkin:
 
 exporters:
   otlp:
@@ -14,8 +21,20 @@ processors:
     send_batch_size: 4
     send_batch_max_size: 8
 
+extensions:
+  health_check:
+  pprof:
+    endpoint: :1888
+  zpages:
+    endpoint: :55679
+
 service:
+  extensions: [pprof, zpages, health_check]
   pipelines:
+    traces:
+      receivers: [otlp] # jaeger, otlp, zipkin
+      exporters: [otlp]
+      processors: [batch]
     metrics:
       receivers: [otlp]
       processors: [batch]
