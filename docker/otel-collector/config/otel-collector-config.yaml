@@ -1,0 +1,22 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
+
+exporters:
+  otlp:
+    endpoint: 'promscale:9202'
+    insecure: true
+
+processors:
+  batch:
+    send_batch_size: 4
+    send_batch_max_size: 8
+
+service:
+  pipelines:
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp]
