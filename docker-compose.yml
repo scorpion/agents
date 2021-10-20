@@ -8,6 +8,7 @@ services:
       context: './docker/fluent-bit'
     command: /fluent-bit/bin/fluent-bit -i node_exporter_metrics -p path.procfs=/host/proc -p path.sysfs=/host/sys -o prometheus_exporter -p "add_label=host fluentbit" -f 1
     restart: unless-stopped
+    privileged: true
     ports:
       - '2020:2020'
       - '2021:2021'
@@ -33,6 +34,7 @@ services:
   cadvisor:
     build:
       context: './docker/cadvisor'
+    privileged: true
     ports:
       - 8080:8080
     volumes:
