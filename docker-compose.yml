@@ -6,12 +6,16 @@ services:
   fluent-bit:
     build:
       context: './docker/fluent-bit'
+    command: /fluent-bit/bin/fluent-bit -i node_exporter_metrics -p path.procfs=/host/proc -p path.sysfs=/host/sys -o prometheus_exporter -p "add_label=host fluentbit" -f 1
     restart: unless-stopped
     ports:
       - '2020:2020'
+      - '2021:2021'
       - '24224:24224'
       - '24224:24224/udp'
-    network_mode: host
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
 
   otel:
     build:
@@ -25,7 +29,6 @@ services:
       - '13133:13133' # health_check extension
       - '4317:4317' # OTLP gRPC receiver
       - '55670:55679' # zpages extension
-    network_mode: host
 
   cadvisor:
     build:
@@ -36,4 +39,4 @@ services:
       - /:/rootfs:ro
       - /var/run:/var/run:rw
       - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker:ro
+      - /var/run/docker.sock:/var/run/docker.sock:rw
